@@ -1,0 +1,20 @@
+sudo: required
+services:
+    - docker 
+before_install:
+    - docker build -t 12684456/CICD -f ./client/Dockerfile.dev
+script:
+    - docker run 12684456/CICD npm test -- --coverage
+after_success:
+    - docker build -t 12684456/CICD-client ./client
+    - docker build -t 12684456/CICD-nginx ./nginx
+    - docker build -t 12684456/CICD-server ./server
+    - docker build -t 12684456/CICD-worker ./worker
+
+#login to dockerhub
+- echo "$DOCKER-PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+#take those images and push them to dockerhub
+- docker push 12684456/CICD-client
+- docker push 12684456/CICD-nginx
+- docker push 12684456/CICD-server
+- docker push 12684456/CICD-worker
